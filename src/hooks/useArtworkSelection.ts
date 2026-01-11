@@ -14,12 +14,7 @@ export const useArtworkSelection = () => {
 
     // Toggle selection for a specific row
     const toggleRow = useCallback((id: number, globalIndex: number) => {
-        // Determine current state based o existing logic
         const currentlySelected = selectedIds.has(id) || (!deselectedIds.has(id) && globalIndex < bulkCount);
-
-        // We need strict logic to maintain the count invariant:
-        // selectedIds contains ONLY items >= bulkCount
-        // deselectedIds contains ONLY items < bulkCount
 
         if (currentlySelected) {
             // We are Deselecting
@@ -69,14 +64,6 @@ export const useArtworkSelection = () => {
     const totalSelectedCount = useMemo(() => {
         const s = selectedIds.size;
         const d = deselectedIds.size;
-        // Invariant: selectedIds are always additive to bulkCount, deselectedIds are always subtractive
-        // BUT we must ensure selectedIds doesn't contain items < bulkCount (handled by toggleRow)
-        // and deselectedIds doesn't contain items >= bulkCount (handled by toggleRow)
-        // If bulkCount reduces, we might have "zombie" deselectedIds that are now >= bulkCount?
-        // Or if bulkCount increases, we might have selectedIds that are now < bulkCount?
-        // We clear sets on `selectBulk`, so this only happens if we change bulkCount without clearing?
-        // `selectBulk` clears them. So we are safe.
-
         return Math.max(0, bulkCount - d + s);
     }, [bulkCount, selectedIds.size, deselectedIds.size]);
 
